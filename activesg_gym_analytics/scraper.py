@@ -19,6 +19,7 @@ SKIP_PREFIXES = (
 @dataclass
 class GymObservation:
     gym_name: str
+    gym_location: str
     status_text: str
     is_open: bool | None
     capacity_current: int | None
@@ -50,6 +51,26 @@ def _looks_like_gym_name(line: str) -> bool:
     if "gym" not in low:
         return False
     return "activesg" in low or low.startswith("gym @")
+
+def infer_gym_location(gym_name: str) -> str:
+    """Best-effort human location/site parsed from the official gym label.
+
+    The ActiveSG crowd page exposes names but not lat/lon or street addresses.
+    Keep the raw ``gym_name`` intact, and store this normalized location/site
+    separately for grouping/filtering and future enrichment.
+    """
+    location = re.sub(r"\s+", " ", gym_name).strip()
+    for prefix in (
+        "ActiveSG Gym @ ",
+        "ActiveSG Hockey Village @ ",
+        "ActiveSG Sport Park @ ",
+    ):
+        if location.lower().startswith(prefix.lower()):
+            location = location[len(prefix):].strip()
+            break
+    location = re.sub(r"\s+ActiveSG\s+Gym$", "", location, flags=re.I).strip()
+    location = re.sub(r"\s+Gym$", "", location, flags=re.I).strip()
+    return location or gym_name
 
 def _parse_capacity(status: str) -> tuple[int | None, int | None, float | None]:
     m = re.search(r"(\d+)\s*/\s*(\d+)", status)
@@ -93,7 +114,7 @@ def parse_markdown(text: str) -> list[GymObservation]:
         status = " · ".join(current_status).strip() if current_status else "Unknown"
         cur, total, pct = _parse_capacity(status)
         is_open, score = _score_status(status, pct)
-        observations.append(GymObservation(current_name, status, is_open, cur, total, pct, score, status))
+        observations.append(GymObservation(current_name, infer_gym_location(current_name), status, is_open, cur, total, pct, score, status))
         current_name = None
         current_status = []
     for line in lines:

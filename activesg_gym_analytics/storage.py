@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS observations (
     fetched_at_utc TEXT NOT NULL,
     fetched_at_sgt TEXT NOT NULL,
     gym_name TEXT NOT NULL,
+    gym_location TEXT,
     status_text TEXT NOT NULL,
     is_open INTEGER,
     capacity_current INTEGER,
@@ -47,6 +48,13 @@ def connect(db_path: Path = DB_PATH) -> sqlite3.Connection:
 def init_db(db_path: Path = DB_PATH) -> None:
     with connect(db_path) as conn:
         conn.executescript(SCHEMA)
+        _migrate_observations(conn)
+        conn.commit()
+
+def _migrate_observations(conn: sqlite3.Connection) -> None:
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(observations)")}
+    if "gym_location" not in columns:
+        conn.execute("ALTER TABLE observations ADD COLUMN gym_location TEXT")
 
 def store_scrape(result: ScrapeResult, db_path: Path = DB_PATH) -> int:
     init_db(db_path)
@@ -59,11 +67,11 @@ def store_scrape(result: ScrapeResult, db_path: Path = DB_PATH) -> int:
         snapshot_id = int(cur.lastrowid)
         conn.executemany(
             """INSERT OR REPLACE INTO observations (
-                snapshot_id, fetched_at_utc, fetched_at_sgt, gym_name, status_text, is_open,
+                snapshot_id, fetched_at_utc, fetched_at_sgt, gym_name, gym_location, status_text, is_open,
                 capacity_current, capacity_total, occupancy_pct, crowd_score, source_detail
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             [(
-                snapshot_id, result.fetched_at_utc, result.fetched_at_sgt, obs.gym_name, obs.status_text,
+                snapshot_id, result.fetched_at_utc, result.fetched_at_sgt, obs.gym_name, obs.gym_location, obs.status_text,
                 None if obs.is_open is None else int(obs.is_open), obs.capacity_current, obs.capacity_total,
                 obs.occupancy_pct, obs.crowd_score, obs.source_detail,
             ) for obs in result.observations],

@@ -51,6 +51,7 @@ hermes cron remove a0c901f80b0b
 
 - SQLite database: `data/activesg_gym.sqlite`
 - Dashboard data JSON: `site/data/observations.json`
+- Observation rows include both the raw `gym_name` and a parsed `gym_location`/site field.
 
 ## Caveats
 

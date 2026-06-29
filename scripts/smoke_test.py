@@ -10,7 +10,7 @@ from activesg_gym_analytics.dashboard import export_data
 result = scrape()
 print(f"parsed {len(result.observations)} gym observations")
 for obs in result.observations[:5]:
-    print(f"- {obs.gym_name}: {obs.status_text} score={obs.crowd_score}")
+    print(f"- {obs.gym_name} [{obs.gym_location}]: {obs.status_text} score={obs.crowd_score}")
 snapshot_id = store_scrape(result)
 print(f"stored snapshot_id={snapshot_id}")
 export_data()
