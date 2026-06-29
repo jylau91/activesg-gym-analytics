@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, asdict
@@ -120,7 +121,8 @@ def fetch_markdown(timeout: int = 45) -> str:
         # was verified locally against the ActiveSG reader URL.
         "User-Agent": "Mozilla/5.0",
     }
-    req = urllib.request.Request(JINA_READER_URL, headers=headers)
+    reader_url = f"{JINA_READER_URL}?hermes_ts={int(time.time())}"
+    req = urllib.request.Request(reader_url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             body = resp.read().decode("utf-8", "replace")
