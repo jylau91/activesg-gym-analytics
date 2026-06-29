@@ -1,0 +1,1 @@
+# Runtime uses Python stdlib only. Plotly is loaded client-side from CDN in site/index.html.
