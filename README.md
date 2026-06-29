@@ -2,6 +2,10 @@
 
 Silent local logger + static analytics dashboard for the public ActiveSG gym crowd page.
 
+Live dashboard: https://jylau91.github.io/activesg-gym-analytics/
+
+Repository: https://github.com/jylau91/activesg-gym-analytics
+
 ## What it does
 
 - Scrapes `https://activesg.gov.sg/gym-pool-crowd` via a text reader snapshot.
@@ -23,7 +27,25 @@ open site/index.html
 
 ## Scheduled collection
 
-Hermes cron runs `scripts/collect_once.py` every 15 minutes during the 6am–10pm window. The script is silent on success. It stores data locally on the Mac mini and publishes the dashboard at most hourly if GitHub Pages is configured.
+Hermes cron runs `activesg_gym_collect.sh` from `~/.hermes/scripts/` every 15 minutes while the Mac mini is awake. The script points back to this project and is also versioned at `scripts/cron_collect.sh`.
+
+- Cron job ID: `a0c901f80b0b`
+- Schedule: `*/15 6-22 * * *`
+- Repeat: `2108` ticks, covering the Jun 30–Jul 30 2026 collection window
+- True collection window enforced by script: **2026-06-30 06:00 SGT → 2026-07-30 22:00 SGT**
+- Success behavior: silent; no Telegram messages
+- Logs: `logs/collector.log`
+
+The collector stores data locally on the Mac mini and publishes the GitHub Pages dashboard at most hourly after new samples are collected.
+
+Management:
+
+```bash
+hermes cron list
+hermes cron pause a0c901f80b0b
+hermes cron resume a0c901f80b0b
+hermes cron remove a0c901f80b0b
+```
 
 ## Data
 
