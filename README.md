@@ -29,10 +29,10 @@ open site/index.html
 
 Hermes cron runs `activesg_gym_collect.sh` from `~/.hermes/scripts/` every 15 minutes while the Mac mini is awake. The script points back to this project and is also versioned at `scripts/cron_collect.sh`.
 
-- Cron job ID: `a0c901f80b0b`
+- Cron job ID: `14303247aac9`
 - Schedule: `*/15 6-22 * * *`
-- Repeat: `2108` ticks, covering the Jun 30–Jul 30 2026 collection window
-- True collection window enforced by script: **2026-06-30 06:00 SGT → 2026-07-30 22:00 SGT**
+- Repeat: ongoing until manually paused or removed
+- Daily collection window enforced by script: **6:00am–10:00pm SGT**
 - Success behavior: silent; no Telegram messages
 - Logs: `logs/collector.log`
 
@@ -42,9 +42,9 @@ Management:
 
 ```bash
 hermes cron list
-hermes cron pause a0c901f80b0b
-hermes cron resume a0c901f80b0b
-hermes cron remove a0c901f80b0b
+hermes cron pause 14303247aac9
+hermes cron resume 14303247aac9
+hermes cron remove 14303247aac9
 ```
 
 ## Data
